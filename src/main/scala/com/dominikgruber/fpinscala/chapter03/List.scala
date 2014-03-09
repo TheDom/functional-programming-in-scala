@@ -155,4 +155,33 @@ object List {
    */
   def reverse[A](l: List[A]): List[A] =
     foldLeft(l, List[A]())((x, y) => Cons(y, x))
+
+  /**
+   * Exercise 13 (hard, optional)
+   * Can you write foldLeft in terms of foldRight? How about the other way
+   * around? Implementing foldRight via foldLeft is useful because it lets us
+   * implement foldRight tail-recursively, which means it works even for large
+   * lists without overflowing the stack.
+   */
+  def foldLeft2[A, B](l: List[A], z: B)(f: (B, A) => B): B =
+    foldRight(l, z)((x, y) => f(y, x))
+
+  def foldRight2[A,B](l: List[A], z: B)(f: (A, B) => B): B =
+    foldLeft(l, z)((x, y) => f(y, x))
+
+  /**
+   * Exercise 14
+   * Implement append in terms of either foldLeft or foldRight.
+   */
+  def append2[A](a1: List[A], a2: List[A]): List[A] =
+    foldRight(a1, a2)((x, y) => Cons(x, y))
+
+  /**
+   * Exercise 15 (hard)
+   * Write a function that concatenates a list of lists into a single list. Its
+   * runtime should be linear in the total length of all lists. Try to use
+   * functions we have already defined.
+   */
+  def concatListOfLists[A](l: List[List[A]]) =
+    foldLeft(l, List[A]())((x, y) => append(x, y))
 }
