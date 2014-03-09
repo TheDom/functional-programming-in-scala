@@ -214,4 +214,17 @@ object List {
     case Nil => Nil
     case Cons(x, xs) => Cons(f(x), map(xs)(f))
   }
+
+  /**
+   * Exercise 19
+   * Write a function filter that removes elements from a list unless they
+   * satisfy a given predicate. Use it to remove all odd numbers from a
+   * List[Int].
+   */
+  def filter[A](l: List[A])(f: A => Boolean): List[A] = l match {
+    case Nil => Nil
+    case Cons(x, xs) =>
+      if (f(x)) Cons(x, filter(xs)(f))
+      else filter(xs)(f)
+  }
 }
