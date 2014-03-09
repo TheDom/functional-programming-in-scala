@@ -86,4 +86,65 @@ object List {
     }
     acc(l, Nil)
   }
+
+  def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B =
+    as match {
+      case Nil => z
+      case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+    }
+
+  def sum2(ns: List[Int]) =
+    foldRight(ns, 0)((x,y) => x + y)
+
+  def product2(ns: List[Double]) =
+    foldRight(ns, 1.0)(_ * _)
+
+  /**
+   * Exercise 07
+   * Can product, implemented using foldRight, immediately halt the recursion
+   * and return 0.0 if it encounters a 0.0? Why or why not? Consider how any
+   * short-circuiting might work if you call foldRight with a large list. This
+   * is a deeper question that we’ll return to in chapter 5.
+   *
+   * Answer: It can not because the function f has as of right now no way of
+   * stopping the foldRight calls
+   */
+
+  /**
+   * Exercise 09
+   * Compute the length of a list using foldRight.
+   */
+  def length[A](l: List[A]): Int =
+    foldRight(l, 0)((_, y) => y + 1)
+
+  /**
+   * Exercise 10
+   * Our implementation of foldRight is not tail-recursive and will
+   * StackOverflow for large lists (we say it’s not stack-safe). Convince
+   * yourself that this is the case, and then write another general
+   * list-recursion function, foldLeft that is tail-recursive, using the
+   * techniques we discussed in the previous chapter.
+   */
+  def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = {
+    @annotation.tailrec
+    def loop(xs: List[A], z2: B): B = xs match {
+      case Nil => z2
+      case Cons(y, ys) => loop(ys, f(z2, y))
+    }
+    loop(l, z)
+  }
+
+  /**
+   * Exercise 11
+   * Write sum, product, and a function to compute the length of a list using
+   * foldLeft.
+   */
+  def sum3(ns: List[Int]) =
+    foldLeft(ns, 0)(_ + _)
+
+  def product3(ns: List[Double]) =
+    foldLeft(ns, 1.0)(_ * _)
+
+  def length2[A](l: List[A]): Int =
+    foldLeft(l, 0)((x, _) => x + 1)
 }
