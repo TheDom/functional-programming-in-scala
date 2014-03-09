@@ -184,4 +184,34 @@ object List {
    */
   def concatListOfLists[A](l: List[List[A]]) =
     foldLeft(l, List[A]())((x, y) => append(x, y))
+
+  /**
+   * Exercise 16
+   * Write a function that transforms a list of integers by adding 1 to each
+   * element. (Reminder: this should be a pure function that returns a new List!)
+   */
+  def add1(l: List[Int]): List[Int] = l match {
+    case Nil => Nil
+    case Cons(x, xs) => Cons(x + 1, add1(xs))
+  }
+
+  /**
+   * Exercise 17
+   * Write a function that turns each value in a List[Double] into a String.
+   * You can use the expression d.toString to convert some d: Double to a String.
+   */
+  def doubleListToString(l: List[Double]): List[String] = l match {
+    case Nil => Nil
+    case Cons(x, xs) => Cons(x.toString, doubleListToString(xs))
+  }
+
+  /**
+   * Exercise 18
+   * Write a function map that generalizes modifying each element in a list
+   * while maintaining the structure of the list.
+   */
+  def map[A,B](l: List[A])(f: A => B): List[B] = l match {
+    case Nil => Nil
+    case Cons(x, xs) => Cons(f(x), map(xs)(f))
+  }
 }
