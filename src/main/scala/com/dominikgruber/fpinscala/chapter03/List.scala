@@ -271,4 +271,32 @@ object List {
     case (_, Nil) => Nil
     case (Cons(x, xs), Cons(y, ys)) => Cons(f(x, y), zip(xs, ys)(f))
   }
+
+  /**
+   * Exercise 24 (hard)
+   * As an example, implement hasSubsequence for checking whether a List
+   * contains another List as a subsequence. For instance, List(1,2,3,4) would
+   * have List(1,2), List(2,3), and List(4) as subsequences, among others. You
+   * may have some difficulty finding a concise purely functional implementation
+   * that is also efficient. That’s okay. Implement the function however comes
+   * most naturally. We’ll return to this implementation in chapter 5 and
+   * hopefully improve on it. Note: any two values, x, and y, can be compared
+   * for equality in Scala using the expression x == y.
+   */
+  def hasSubsequence[A](l: List[A], sub: List[A]): Boolean = {
+    def startsWith(ls: List[A], ss: List[A]): Boolean = (ls, ss) match {
+      case (_, Nil) => true
+      case (Nil, _) => false
+      case (Cons(x, xs), Cons(y, ys)) =>
+        if (x == y) startsWith(xs, ys)
+        else false
+    }
+    def go(ls: List[A]): Boolean = ls match {
+      case Nil => false
+      case Cons(x, xs) =>
+        if (startsWith(ls, sub)) true
+        else go(xs)
+    }
+    go(l)
+  }
 }
