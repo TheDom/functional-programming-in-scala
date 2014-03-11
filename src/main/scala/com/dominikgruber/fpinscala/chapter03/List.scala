@@ -227,4 +227,48 @@ object List {
       if (f(x)) Cons(x, filter(xs)(f))
       else filter(xs)(f)
   }
+
+  /**
+   * Exercise 20
+   * Write a function flatMap that works like map except that the function given
+   * will return a list instead of a single result, and that list should be
+   * inserted into the final resulting list.
+   */
+  def flatMap[A,B](l: List[A])(f: A => List[B]): List[B] = l match {
+    case Nil => Nil
+    case Cons(x, xs) => append(f(x), flatMap(xs)(f))
+  }
+
+  /**
+   * Exercise 21
+   * Can you use flatMap to implement filter?
+   */
+  def filter2[A](l: List[A])(f: A => Boolean): List[A] =
+    flatMap(l)(x =>
+      if (f(x)) List(x)
+      else Nil
+    )
+
+  /**
+   * Exercise 22
+   * Write a function that accepts two lists and constructs a new list by adding
+   * corresponding elements. For example, List(1,2,3) and List(4,5,6) becomes
+   * List(5,7,9).
+   */
+  def addInt(l1: List[Int], l2: List[Int]): List[Int] = (l1, l2) match {
+    case (Nil, _) => Nil
+    case (_, Nil) => Nil
+    case (Cons(x, xs), Cons(y, ys)) => Cons(x + y, addInt(xs, ys))
+  }
+
+  /**
+   * Exercise 23
+   * Generalize the function you just wrote so that it’s not specific to
+   * integers or addition.
+   */
+  def zip[A](l1: List[A], l2: List[A])(f: (A, A) => A): List[A] = (l1, l2) match {
+    case (Nil, _) => Nil
+    case (_, Nil) => Nil
+    case (Cons(x, xs), Cons(y, ys)) => Cons(f(x, y), zip(xs, ys)(f))
+  }
 }
