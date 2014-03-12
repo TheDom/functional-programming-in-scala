@@ -46,4 +46,28 @@ object Tree {
     case Leaf(x) => Leaf(f(x))
     case Branch(l, r) => Branch(map(l)(f), map(r)(f))
   }
+
+  /**
+   * Exercise 29
+   * Generalize size, maximum, depth, and map, writing a new function fold that
+   * abstracts over their similarities. Reimplement them in terms of this more
+   * general function. Can you draw an analogy between this fold function and
+   * the left and right folds for List?
+   */
+  def fold[A,B](t: Tree[A])(f: A => B)(b: (B, B) => B): B = t match {
+    case Leaf(x) => f(x)
+    case Branch(l, r) => b(fold(l)(f)(b), fold(r)(f)(b))
+  }
+
+  def size2[A](t: Tree[A]): Int =
+    fold(t)(_ => 1)((l, r) => 1 + l + r)
+
+  def maximum2(t: Tree[Int]): Int =
+    fold(t)(x => x)((l, r) => l.max(r))
+
+  def depth2[A](t: Tree[A]): Int =
+    fold(t)(_ => 0)((l, r) => 1 + l.max(r))
+
+  def map2[A,B](t: Tree[A])(f: A => B): Tree[B] =
+    fold(t)(a => Leaf(f(a)): Tree[B])((l, r) => Branch(l, r))
 }
