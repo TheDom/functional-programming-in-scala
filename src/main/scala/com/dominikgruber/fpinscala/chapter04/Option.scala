@@ -59,4 +59,31 @@ object Chapter04 {
     case (Some(x), Some(y)) => Some(f(x, y))
     case _ => None
   }
+
+  // Official Solution
+  def map2_1[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
+    a flatMap (aa => b map (bb => f(aa, bb)))
+
+  /**
+   * Exercise 04
+   * Write a function sequence that combines a list of Options into one option
+   * containing a list of all the Some values in the original list. If the
+   * original list contains None even once, the result of the function should be
+   * None; otherwise the result should be Some with a list of all the values.
+   */
+  def sequence[A](a: List[Option[A]]): Option[List[A]] = {
+    def go(a: List[Option[A]], acc: List[A]): Option[List[A]] = a match {
+      case Nil => Some(acc)
+      case Some(x) :: xs => go(xs, acc :+ x)
+      case None :: xs => None
+    }
+    go(a, List[A]())
+  }
+
+  // Official Solution
+  def sequence_1[A](a: List[Option[A]]): Option[List[A]] =
+    a match {
+      case Nil => Some(Nil)
+      case h :: t => h flatMap (hh => sequence_1(t) map (hh :: _))
+    }
 }
