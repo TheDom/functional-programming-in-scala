@@ -48,4 +48,15 @@ object Chapter04 {
     mean(xs) flatMap { m =>
       mean(xs.map(x => math.pow(x - m, 2)))
     }
+
+  /**
+   * Exercise 03
+   * Write a generic function map2 that combines two Option values using a
+   * binary function. If either Option value is None, then the return value is
+   * too.
+   */
+  def map2[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = (a, b) match {
+    case (Some(x), Some(y)) => Some(f(x, y))
+    case _ => None
+  }
 }
