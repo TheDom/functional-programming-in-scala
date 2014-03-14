@@ -86,4 +86,18 @@ object Chapter04 {
       case Nil => Some(Nil)
       case h :: t => h flatMap (hh => sequence_1(t) map (hh :: _))
     }
+
+  /**
+   * Exercise 05
+   * Implement this function. It’s straightforward to do using map and sequence,
+   * but try for a more efficient implementation that only looks at the list
+   * once. In fact, implement sequence in terms of traverse.
+   */
+  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
+    case Nil => Some(Nil)
+    case x :: xs => f(x) flatMap(xx => traverse(xs)(f) map (xx :: _))
+  }
+
+  def sequence2[A](a: List[Option[A]]): Option[List[A]] =
+    traverse(a)(x => x)
 }
