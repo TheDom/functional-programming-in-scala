@@ -5,7 +5,7 @@ import org.scalatest._
 class Exercise05Spec extends FlatSpec with Matchers {
 
   "traverse" should "convert ints to strings" in {
-      Chapter04.traverse(List(1, 2, 3))(x => Some(x.toString())) should be (Some(List("1", "2", "3")))
+      Chapter04.traverse(List(1, 2, 3))(x => Some(x.toString)) should be (Some(List("1", "2", "3")))
   }
 
   it should "be None" in {
