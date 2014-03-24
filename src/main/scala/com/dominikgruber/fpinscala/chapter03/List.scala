@@ -151,7 +151,7 @@ object List {
    * it returns List(3,2,1)). See if you can write it using a fold.
    */
   def reverse[A](l: List[A]): List[A] =
-    foldLeft(l, List[A]())((x, y) => Cons(y, x))
+    foldLeft(l, Nil: List[A])((x, y) => Cons(y, x))
 
   /**
    * Exercise 13 (hard, optional)
@@ -181,6 +181,8 @@ object List {
    */
   def concatListOfLists[A](l: List[List[A]]) =
     foldLeft(l, List[A]())((x, y) => append(x, y))
+  def concatListOfLists[A](l: List[List[A]]): List[A] =
+    foldLeft(l, Nil: List[A])((x, y) => append(x, y))
 
   /**
    * Exercise 16
