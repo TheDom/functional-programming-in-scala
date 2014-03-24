@@ -78,13 +78,10 @@ object List {
    * List(1,2,3,4), init will return List(1,2,3). Why can’t this function be
    * implemented in constant time like tail?
    */
-  def init[A](l: List[A]): List[A] = {
-    def acc(l1: List[A], l2: List[A]): List[A] = l1 match {
-      case Nil => l2
-      case Cons(h, Nil) => l2
-      case Cons(h, t) => acc(t, append(l2, List(h)))
-    }
-    acc(l, Nil)
+  def init[A](l: List[A]): List[A] = l match {
+    case Nil => Nil
+    case Cons(_, Nil) => Nil
+    case Cons(h, t) => Cons(h, init(t))
   }
 
   def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B =
