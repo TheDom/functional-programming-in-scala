@@ -179,40 +179,32 @@ object List {
    * runtime should be linear in the total length of all lists. Try to use
    * functions we have already defined.
    */
-  def concatListOfLists[A](l: List[List[A]]) =
-    foldLeft(l, List[A]())((x, y) => append(x, y))
   def concatListOfLists[A](l: List[List[A]]): List[A] =
-    foldLeft(l, Nil: List[A])((x, y) => append(x, y))
+    foldRight(l, Nil: List[A])(append)
 
   /**
    * Exercise 16
    * Write a function that transforms a list of integers by adding 1 to each
    * element. (Reminder: this should be a pure function that returns a new List!)
    */
-  def add1(l: List[Int]): List[Int] = l match {
-    case Nil => Nil
-    case Cons(x, xs) => Cons(x + 1, add1(xs))
-  }
+  def add1(l: List[Int]): List[Int] =
+    foldRight(l, Nil: List[Int])((h, t) => Cons(h + 1, t))
 
   /**
    * Exercise 17
    * Write a function that turns each value in a List[Double] into a String.
    * You can use the expression d.toString to convert some d: Double to a String.
    */
-  def doubleListToString(l: List[Double]): List[String] = l match {
-    case Nil => Nil
-    case Cons(x, xs) => Cons(x.toString, doubleListToString(xs))
-  }
+  def doubleListToString(l: List[Double]): List[String] =
+    foldRight(l, Nil: List[String])((h, t) => Cons(h.toString, t))
 
   /**
    * Exercise 18
    * Write a function map that generalizes modifying each element in a list
    * while maintaining the structure of the list.
    */
-  def map[A,B](l: List[A])(f: A => B): List[B] = l match {
-    case Nil => Nil
-    case Cons(x, xs) => Cons(f(x), map(xs)(f))
-  }
+  def map[A,B](l: List[A])(f: A => B): List[B] =
+    foldRight(l, Nil: List[B])((h, t) => Cons(f(h), t))
 
   /**
    * Exercise 19
@@ -220,12 +212,11 @@ object List {
    * satisfy a given predicate. Use it to remove all odd numbers from a
    * List[Int].
    */
-  def filter[A](l: List[A])(f: A => Boolean): List[A] = l match {
-    case Nil => Nil
-    case Cons(x, xs) =>
-      if (f(x)) Cons(x, filter(xs)(f))
-      else filter(xs)(f)
-  }
+  def filter[A](l: List[A])(f: A => Boolean): List[A] =
+    foldRight(l, Nil: List[A])((h, t) => {
+      if (f(h)) Cons(h, t)
+      else t
+    })
 
   /**
    * Exercise 20
@@ -233,10 +224,8 @@ object List {
    * will return a list instead of a single result, and that list should be
    * inserted into the final resulting list.
    */
-  def flatMap[A,B](l: List[A])(f: A => List[B]): List[B] = l match {
-    case Nil => Nil
-    case Cons(x, xs) => append(f(x), flatMap(xs)(f))
-  }
+  def flatMap[A,B](l: List[A])(f: A => List[B]): List[B] =
+    foldRight(l, Nil: List[B])((h, t) => append(f(h), t))
 
   /**
    * Exercise 21
