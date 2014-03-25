@@ -122,13 +122,10 @@ object List {
    * list-recursion function, foldLeft that is tail-recursive, using the
    * techniques we discussed in the previous chapter.
    */
-  def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = {
-    @annotation.tailrec
-    def loop(xs: List[A], z2: B): B = xs match {
-      case Nil => z2
-      case Cons(y, ys) => loop(ys, f(z2, y))
-    }
-    loop(l, z)
+  @annotation.tailrec
+  def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = l match {
+    case Nil => z
+    case Cons(h, t) => foldLeft(t, f(z, h))(f)
   }
 
   /**
@@ -171,7 +168,7 @@ object List {
    * Implement append in terms of either foldLeft or foldRight.
    */
   def append2[A](a1: List[A], a2: List[A]): List[A] =
-    foldRight(a1, a2)((x, y) => Cons(x, y))
+    foldRight(a1, a2)(Cons(_, _))
 
   /**
    * Exercise 15 (hard)
