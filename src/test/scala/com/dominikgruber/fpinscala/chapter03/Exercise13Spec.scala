@@ -5,24 +5,26 @@ import org.scalatest._
 class Exercise13Spec extends FlatSpec with Matchers {
 
   "foldLeft2" should "behave the same as foldLeft" in {
-    def sum(ns: List[Int]) =
-      List.foldLeft(ns, 0)(_ + _)
+    def div(ns: List[Double]) =
+      List.foldLeft(ns, 1.0)(_ / _)
 
-    def sum2(ns: List[Int]) =
-      List.foldLeft2(ns, 0)(_ + _)
+    def div2(ns: List[Double]) =
+      List.foldLeft2(ns, 1.0)(_ / _)
 
-    val l = List(1, 2, 3, 4, 5)
-    sum2(l) should be (sum(l))
+    val l = List(1.0, 2.0, 3.0, 4.0, 5.0)
+    div2(l) should be (div(l))
+    div2(l) should be (1.0 / 1.0 / 2.0 / 3.0 / 4.0 / 5.0)
   }
 
   "foldRight2" should "behave the same as foldRight" in {
-    def length[A](l: List[A]): Int =
-      List.foldRight(l, 0)((_, y) => y + 1)
+    def div(l: List[Double]) =
+      List.foldRight(l, 1.0)(_ / _)
 
-    def length2[A](l: List[A]): Int =
-      List.foldRight2(l, 0)((_, y) => y + 1)
+    def div2(l: List[Double]) =
+      List.foldRight2(l, 1.0)(_ / _)
 
-    val l = List(1, 2, 3, 4, 5)
-    length2(l) should be (length(l))
+    val l = List(1.0, 2.0, 3.0, 4.0, 5.0)
+    div2(l) should be (div(l))
+    div2(l) should be (1.0 / (2.0 / (3.0 / (4.0 / (5.0 / 1.0)))))
   }
 }
