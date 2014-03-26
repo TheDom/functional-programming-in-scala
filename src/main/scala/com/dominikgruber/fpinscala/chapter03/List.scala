@@ -158,10 +158,10 @@ object List {
    * lists without overflowing the stack.
    */
   def foldLeft2[A, B](l: List[A], z: B)(f: (B, A) => B): B =
-    foldRight(l, z)((x, y) => f(y, x))
+    foldRight(l, (b: B) => b)((a, g) => b => g(f(b, a)))(z)
 
   def foldRight2[A,B](l: List[A], z: B)(f: (A, B) => B): B =
-    foldLeft(l, z)((x, y) => f(y, x))
+    foldLeft(reverse(l), z)((x, y) => f(y, x))
 
   /**
    * Exercise 14
