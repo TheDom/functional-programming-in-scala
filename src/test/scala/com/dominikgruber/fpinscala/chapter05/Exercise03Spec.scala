@@ -9,6 +9,6 @@ class Exercise03Spec extends FlatSpec with Matchers {
   }
 
   it should "not take anything" in {
-    Stream(1, 2, 3).takeWhile(_ > 10).toList should be (List())
+    Stream(1, 2, 3).takeWhile(_ > 10).toList should be (Nil)
   }
 }
