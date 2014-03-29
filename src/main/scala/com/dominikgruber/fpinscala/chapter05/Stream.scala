@@ -148,6 +148,34 @@ sealed trait Stream[+A] {
       case (Empty, Cons(h2, t2)) => Some((None: Option[A], Some(h2())), (Empty, t2()))
       case _ => None
     }
+
+  /**
+   * Exercise 14 (hard)
+   * Implement startsWith using functions you've written. It should check if one
+   * Stream is a prefix of another. For instance, Stream(1,2,3) startsWith
+   * Stream(1,2) would be true.
+   */
+  def startsWith[A](s: Stream[A]): Boolean =
+    zipAll(s).takeWhile(_._2 != None).forAll {
+      case (Some(x), Some(y)) if x == y => true
+      case _ => false
+    }
+
+  /**
+   * Exercise 15
+   * Implement tails using unfold. For a given Stream, tails returns the Stream
+   * of suffixes of the input sequence, starting with the original Stream. For
+   * example, given Stream(1,2,3) it would return Stream(Stream(1,2,3),
+   * Stream(2,3), Stream(3), Stream()).
+   */
+  def tails: Stream[Stream[A]] =
+    unfold(this)(x => x match {
+      case Cons(h, t) => Some(x, t())
+      case Empty => None
+    }) append (Stream(Empty))
+
+  def hasSubsequence[A](s: Stream[A]): Boolean =
+    tails exists (_ startsWith s)
 }
 
 case object Empty extends Stream[Nothing]
