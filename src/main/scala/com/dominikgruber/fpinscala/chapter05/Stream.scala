@@ -109,6 +109,45 @@ sealed trait Stream[+A] {
 
   def flatMap[B](f: A => Stream[B]): Stream[B] =
     foldRight(Empty: Stream[B])((h, t) => f(h).append(t))
+
+  /**
+   * Exercise 13
+   * Use unfold to implement map, take, takeWhile, zipWith (as in chapter 3),
+   * and zipAll. The zipAll function should continue the traversal as long as
+   * either stream has more elements—it uses Option to indicate whether each
+   * stream has been exhausted.
+   */
+  def map2[B](f: A => B): Stream[B] =
+    unfold(this) {
+      case Cons(h, t) => Some((f(h()), t()))
+      case Empty => None
+    }
+
+  def take2(n: Int): Stream[A] =
+    unfold((this, n))(x => x._1 match {
+      case Cons(h, t) if x._2 > 0 => Some((h(),(t(), x._2 - 1)))
+      case _ => None
+    })
+
+  def takeWhile3(p: A => Boolean): Stream[A] =
+    unfold(this) {
+      case Cons(h, t) if p(h()) => Some((h(), t()))
+      case _ => None
+    }
+
+  def zipWith[B,C](s2: Stream[B])(f: (A,B) => C): Stream[C] =
+    unfold((this, s2)) {
+      case (Cons(h1, t1), Cons(h2, t2)) => Some((f(h1(), h2()), (t1(), t2())))
+      case _ => None
+    }
+
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] =
+    unfold((this, s2)) {
+      case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), (t1(), t2()))
+      case (Cons(h1, t1), Empty) => Some((Some(h1()), None: Option[B]), (t1(), Empty))
+      case (Empty, Cons(h2, t2)) => Some((None: Option[A], Some(h2())), (Empty, t2()))
+      case _ => None
+    }
 }
 
 case object Empty extends Stream[Nothing]
@@ -127,6 +166,8 @@ object Stream {
   def apply[A](as: A*): Stream[A] =
     if (as.isEmpty) empty
     else cons(as.head, apply(as.tail: _*))
+
+  val ones: Stream[Int] = Stream.cons(1, ones)
 
   /**
    * Exercise 8
@@ -166,4 +207,20 @@ object Stream {
     case Some((a, s)) => cons(a, unfold(s)(f))
     case None => Empty
   }
+
+  /**
+   * Exercise 12
+   * Write fibs, from, constant, and ones in terms of unfold.
+   */
+  def fibs2: Stream[Int] =
+    unfold((0, 1))(x => Some((x._1, (x._2, x._1 + x._2))))
+
+  def from2(n: Int): Stream[Int] =
+    unfold(n)(x => Some((x, x + 1)))
+
+  def constant2[A](a: A): Stream[A] =
+    unfold(a)(x => Some(x, x))
+
+  val ones2: Stream[Int] =
+    unfold(1)(x => Some(x, x))
 }
