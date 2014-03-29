@@ -125,7 +125,7 @@ sealed trait Stream[+A] {
 
   def take2(n: Int): Stream[A] =
     unfold((this, n))(x => x._1 match {
-      case Cons(h, t) if x._2 > 0 => Some((h(),(t(), x._2 - 1)))
+      case Cons(h, t) if x._2 > 0 => Some((h(), (t(), x._2 - 1)))
       case _ => None
     })
 
@@ -135,13 +135,13 @@ sealed trait Stream[+A] {
       case _ => None
     }
 
-  def zipWith[B,C](s2: Stream[B])(f: (A,B) => C): Stream[C] =
+  def zipWith[B,C](s2: Stream[B])(f: (A, B) => C): Stream[C] =
     unfold((this, s2)) {
       case (Cons(h1, t1), Cons(h2, t2)) => Some((f(h1(), h2()), (t1(), t2())))
       case _ => None
     }
 
-  def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] =
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] =
     unfold((this, s2)) {
       case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), (t1(), t2()))
       case (Cons(h1, t1), Empty) => Some((Some(h1()), None: Option[B]), (t1(), Empty))
@@ -176,6 +176,20 @@ sealed trait Stream[+A] {
 
   def hasSubsequence[A](s: Stream[A]): Boolean =
     tails exists (_ startsWith s)
+
+  /**
+   * Exercise 16 (hard, optional)
+   * Generalize tails to the function scanRight, which is like a foldRight that
+   * returns a stream of the intermediate results. Your function should reuse
+   * intermediate results so that traversing a Stream with n elements always
+   * takes time linear in n. Can it be implemented using unfold? How, or why
+   * not? Could it be implemented using another function we've written?
+   */
+  def scanRight[B](z: => B)(f: (A, => B) => B): Stream[B] =
+    foldRight((z, Stream(z)))((a, b) => {
+      val b2 = f(a, b._1)
+      (b2, cons(b2, b._2))
+    })._2
 }
 
 case object Empty extends Stream[Nothing]
@@ -195,7 +209,7 @@ object Stream {
     if (as.isEmpty) empty
     else cons(as.head, apply(as.tail: _*))
 
-  val ones: Stream[Int] = Stream.cons(1, ones)
+  val ones: Stream[Int] = cons(1, ones)
 
   /**
    * Exercise 8
