@@ -104,4 +104,20 @@ object Chapter06 {
 
   val randDoubleInt: Rand[(Double, Int)] =
     both(double, int)
+
+  /**
+   * Exercise 7 (hard)
+   * If we can combine two RNG transitions, we should be able to combine a
+   * whole list of them. Implement sequence, for combining a List of transitions
+   * into a single transition. Use it to reimplement the ints function you wrote
+   * before. For the latter, you can use the standard library function
+   * List.fill(n)(x) to make a list with x repeated n times.
+   */
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
+    fs.foldRight(unit(List[A]())) { (f, acc) =>
+      map2(f, acc)(_ :: _)
+    }
+
+  def ints2(count: Int): Rand[List[Int]] =
+    sequence(List.fill(count)(int))
 }
