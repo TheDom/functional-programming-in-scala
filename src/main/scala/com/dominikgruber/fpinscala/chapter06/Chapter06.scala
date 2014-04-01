@@ -137,4 +137,16 @@ object Chapter06 {
       if (i + (n - 1) - mod >= 0) unit(mod)
       else nonNegativeLessThan(n)
     }
+
+  /**
+   * Exercise 9
+   * Reimplement map and map2 in terms of flatMap. The fact that this is
+   * possible is what we're referring to when we say that flatMap is more
+   * powerful than than map and map2.
+   */
+  def mapViaFlatMap[A,B](s: Rand[A])(f: A => B): Rand[B] =
+    flatMap(s)(a => unit(f(a)))
+
+  def map2ViaFlatMap[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    flatMap(ra)(a => mapViaFlatMap(rb)(b => f(a, b)))
 }
