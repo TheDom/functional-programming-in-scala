@@ -21,7 +21,7 @@ object List {
     else Cons(as.head, apply(as.tail: _*))
 
   /**
-   * Exercise 02
+   * Exercise 2
    * Implement the function tail for “removing” the first element of a List.
    * Note that the function takes constant time. What are different choices
    * you could make in your implementation if the List is Nil?
@@ -33,7 +33,7 @@ object List {
   }
 
   /**
-   * Exercise 03
+   * Exercise 3
    * Using the same idea, implement the function setHead for replacing the first
    * element of a List with a different value.
    */
@@ -43,7 +43,7 @@ object List {
   }
 
   /**
-   * Exercise 04
+   * Exercise 4
    * Generalize tail to the function drop, which removes the first n elements
    * from a list. Note that this function takes time proportional only to the
    * number of elements being dropped—we don’t need to make a copy of the
@@ -54,7 +54,7 @@ object List {
     else drop(n - 1, tail(l))
 
   /**
-   * Exercise 05
+   * Exercise 5
    * Implement dropWhile, which removes elements from the List prefix as long as
    * they match a predicate.
    */
@@ -72,7 +72,7 @@ object List {
     }
 
   /**
-   * Exercise 06
+   * Exercise 6
    * Not everything works out so nicely. Implement a function, init, which
    * returns a List consisting of all but the last element of a List. So, given
    * List(1,2,3,4), init will return List(1,2,3). Why can’t this function be
@@ -97,7 +97,7 @@ object List {
     foldRight(ns, 1.0)(_ * _)
 
   /**
-   * Exercise 07
+   * Exercise 7
    * Can product, implemented using foldRight, immediately halt the recursion
    * and return 0.0 if it encounters a 0.0? Why or why not? Consider how any
    * short-circuiting might work if you call foldRight with a large list. This
@@ -108,7 +108,7 @@ object List {
    */
 
   /**
-   * Exercise 09
+   * Exercise 9
    * Compute the length of a list using foldRight.
    */
   def length[A](l: List[A]): Int =

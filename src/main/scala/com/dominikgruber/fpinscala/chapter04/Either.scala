@@ -3,7 +3,7 @@ package com.dominikgruber.fpinscala.chapter04
 sealed trait Either[+E, +A] {
 
   /**
-   * Exercise 06
+   * Exercise 6
    * Implement versions of map, flatMap, orElse, and map2 on Either that operate
    * on the Right value.
    */
@@ -32,7 +32,7 @@ case class Right[+A](value: A) extends Either[Nothing, A]
 object Either {
 
   /**
-   * Exercise 07
+   * Exercise 7
    * Implement sequence and traverse for Either. These should return the first
    * error that is encountered, if there is one.
    */

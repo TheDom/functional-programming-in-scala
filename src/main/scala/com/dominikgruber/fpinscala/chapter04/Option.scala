@@ -3,7 +3,7 @@ package com.dominikgruber.fpinscala.chapter04
 sealed trait Option[+A] {
 
   /**
-   * Exercise 01
+   * Exercise 1
    * Implement all of the preceding functions on Option. As you implement each
    * function, try to think about what it means and in what situations you’d
    * use it.
@@ -39,7 +39,7 @@ object Chapter04 {
     else Some(xs.sum / xs.length)
 
   /**
-   * Exercise 02
+   * Exercise 2
    * Implement the variance function in terms of flatMap. If the mean of a
    * sequence is m, the variance is the mean of math.pow(x - m, 2) for each
    * element x in the sequence.
@@ -50,7 +50,7 @@ object Chapter04 {
     }
 
   /**
-   * Exercise 03
+   * Exercise 3
    * Write a generic function map2 that combines two Option values using a
    * binary function. If either Option value is None, then the return value is
    * too.
@@ -65,7 +65,7 @@ object Chapter04 {
     a flatMap (aa => b map (bb => f(aa, bb)))
 
   /**
-   * Exercise 04
+   * Exercise 4
    * Write a function sequence that combines a list of Options into one option
    * containing a list of all the Some values in the original list. If the
    * original list contains None even once, the result of the function should be
@@ -88,7 +88,7 @@ object Chapter04 {
     }
 
   /**
-   * Exercise 05
+   * Exercise 5
    * Implement this function. It’s straightforward to do using map and sequence,
    * but try for a more efficient implementation that only looks at the list
    * once. In fact, implement sequence in terms of traverse.

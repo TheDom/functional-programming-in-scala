@@ -9,7 +9,7 @@ sealed trait Stream[+A] {
   }
 
   /**
-   * Exercise 01
+   * Exercise 1
    * Write a function to convert a Stream to a List, which will force its
    * evaluation and let us look at it in the REPL. You can convert to the
    * regular List type in the standard library. You can place this and other
@@ -21,7 +21,7 @@ sealed trait Stream[+A] {
   }
 
   /**
-   * Exercise 02
+   * Exercise 2
    * Write the function take(n) for returning the first n elements of a Stream,
    * and drop(n) for skipping the first n elements of a Stream.
    */
@@ -38,7 +38,7 @@ sealed trait Stream[+A] {
   }
 
   /**
-   * Exercise 03
+   * Exercise 3
    * Write the function takeWhile for returning all starting elements of a
    * Stream that match the given predicate.
    */
