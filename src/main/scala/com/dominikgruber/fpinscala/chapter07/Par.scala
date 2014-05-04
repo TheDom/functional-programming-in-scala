@@ -119,4 +119,20 @@ object Par {
 
   def choice_2[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
     chooser(cond)(if (_) t else f)
+
+  /**
+   * Exercise 14
+   * Implement join. Can you see how to implement flatMap using join? And can
+   * you implement join using flatMap?
+   */
+  def join[A](a: Par[Par[A]]): Par[A] =
+    es => {
+      run(es)(run(es)(a).get())
+    }
+
+  def flatMap[A,B](a: Par[A])(f: A => Par[B]): Par[B] =
+    join(map(a)(f))
+
+  def joinViaFlatMap[A](a: Par[Par[A]]): Par[A] =
+    flatMap(a)(x => x)
 }
