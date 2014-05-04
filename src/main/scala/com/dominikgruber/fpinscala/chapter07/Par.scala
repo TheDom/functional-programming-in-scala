@@ -89,4 +89,34 @@ object Par {
 
   def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
     choiceN(map(cond)(if (_) 0 else 1))(List(t, f))
+
+  /**
+   * Exercise 12
+   * There's still something rather arbitrary about chooseN. The choice of List
+   * seems overly specific. Why does it matter what sort of container we have?
+   * For instance, what if, instead of a list of computations, we have a Map of
+   * them:
+   */
+  def choiceMap[K,V](key: Par[K])(choices: Map[K,Par[V]]): Par[V] =
+    es => {
+      val keyV = run(es)(key).get
+      choices(keyV)(es)
+    }
+
+  /**
+   * Exercise 13
+   * Implement this new primitive chooser, then use it to implement choice and
+   * choiceN.
+   */
+  def chooser[A,B](pa: Par[A])(choices: A => Par[B]): Par[B] =
+    es => {
+      val a = run(es)(pa).get
+      choices(a)(es)
+    }
+
+  def choiceN_2[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
+    chooser(n)(choices(_))
+
+  def choice_2[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+    chooser(cond)(if (_) t else f)
 }
