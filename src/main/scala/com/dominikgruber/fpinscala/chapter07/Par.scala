@@ -45,4 +45,48 @@ object Par {
     a => lazyUnit(f(a))
 
   def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
+
+  def map[A,B](pa: Par[A])(f: A => B): Par[B] =
+    map2(pa, unit(()))((a,_) => f(a))
+
+  def parMap[A,B](l: List[A])(f: A => B): Par[List[B]] = fork {
+    val fbs: List[Par[B]] = l.map(asyncF(f))
+    sequence(fbs)
+  }
+
+  /**
+   * Exercise 05 (hard)
+   * Let's write this function, called sequence. No additional primitives are
+   * required.
+   */
+  def sequence[A](l: List[Par[A]]): Par[List[A]] =
+    l.foldRight(unit(List[A]()))((h, t) => map2(h, t)(_ :: _))
+
+  /**
+   * Exercise 06
+   * Implement parFilter, which filters elements of a list in parallel.
+   */
+  def parFilter[A](l: List[A])(f: A => Boolean): Par[List[A]] = {
+    val pars = l.map(asyncF((a: A) => if (f(a)) List(a) else List()))
+    map(sequence(pars))(_.flatten)
+  }
+
+  def equal[A](e: ExecutorService)(p: Par[A], p2: Par[A]): Boolean =
+    p(e).get == p2(e).get
+
+  def delay[A](fa: => Par[A]): Par[A] =
+    es => fa(es)
+
+  /**
+   * Exercise 11
+   * Implement choiceN and then choice in terms of choiceN.
+   */
+  def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
+    es => {
+      val idx = run(es)(n).get
+      choices(idx)(es)
+    }
+
+  def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+    choiceN(map(cond)(if (_) 0 else 1))(List(t, f))
 }
