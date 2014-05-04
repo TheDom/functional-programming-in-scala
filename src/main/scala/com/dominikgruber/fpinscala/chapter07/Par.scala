@@ -127,7 +127,8 @@ object Par {
    */
   def join[A](a: Par[Par[A]]): Par[A] =
     es => {
-      run(es)(run(es)(a).get())
+      val aI = run(es)(a).get
+      aI(es)
     }
 
   def flatMap[A,B](a: Par[A])(f: A => Par[B]): Par[B] =
