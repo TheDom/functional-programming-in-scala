@@ -1,7 +1,6 @@
 package com.dominikgruber.fpinscala.chapter08
 
 import com.dominikgruber.fpinscala.chapter06.{Chapter06, RNG, State}
-import scala.annotation.tailrec
 
 case class Gen[A](sample: State[RNG,A]) {
 
@@ -16,6 +15,13 @@ case class Gen[A](sample: State[RNG,A]) {
 
   def listOfN(size: Gen[Int]): Gen[List[A]] =
     size.flatMap(Gen.listOfN(_, this))
+
+  /**
+   * Exercise 10
+   * Implement helper functions for converting Gen to SGen. You can add this as
+   * a method to Gen.
+   */
+  def unsized: SGen[A] = SGen(_ => this)
 }
 
 object Gen {
@@ -89,4 +95,19 @@ object Gen {
       else g2._1.sample
     })
   }
+
+  /**
+   * Exercise 12
+   * We can now implement a listOf combinator that does not accept an explicit
+   * size. It can return an SGen instead of a Gen. The implementation can
+   * generate lists of the requested size.
+   */
+  def listOf[A](g: Gen[A]): SGen[List[A]] = SGen(Gen.listOfN(_, g))
+
+  /**
+   * Exercise 14
+   * Define listOf1, for generating nonempty lists, then update your
+   * specification of max to use this generator.
+   */
+  def listOf1[A](g: Gen[A]): SGen[List[A]] = SGen(n => Gen.listOfN(n max 1, g))
 }
