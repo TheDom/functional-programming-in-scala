@@ -149,6 +149,9 @@ sealed trait Stream[+A] {
       case _ => None
     }
 
+  def zip[B](s2: Stream[B]): Stream[(A,B)] =
+    zipWith(s2)((_,_))
+
   /**
    * Exercise 14 (hard)
    * Implement startsWith using functions you've written. It should check if one
@@ -190,6 +193,12 @@ sealed trait Stream[+A] {
       val b2 = f(a, b._1)
       (b2, cons(b2, b._2))
     })._2
+
+  @annotation.tailrec
+  final def find(f: A => Boolean): Option[A] = this match {
+    case Empty => None
+    case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
+  }
 }
 
 case object Empty extends Stream[Nothing]
