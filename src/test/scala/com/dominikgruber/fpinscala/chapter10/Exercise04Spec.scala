@@ -7,7 +7,7 @@ import org.scalatest._
 
 class Exercise04Spec extends FlatSpec with Matchers {
 
-  "monoidLaws" should "be fullfilled by Int Monoids" in {
+  "monoidLaws" should "be fulfilled by Int Monoids" in {
     monoidLaws(intAddition, Gen.choose(-1000, 1000)).run(100, 100, Simple(1)) should be (None)
     monoidLaws(intMultiplication, Gen.choose(-1000, 1000)).run(100, 100, Simple(1)) should be (None)
   }

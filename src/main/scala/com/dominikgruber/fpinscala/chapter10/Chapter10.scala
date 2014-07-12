@@ -69,5 +69,21 @@ object Chapter10 {
     associative && identity
   }
 
+  /**
+   * Exercise 05
+   * Write this function.
+   */
+  def foldMap[A,B](as: List[A], m: Monoid[B])(f: A => B): B =
+    as.map(a => f(a)).foldRight(m.zero)(m.op)
 
+  // Better reference implementation
+  // as.foldLeft(m.zero)((b, a) => m.op(b, f(a)))
+
+  /**
+   * Exercise 06 (hard)
+   * The foldMap function can be implemented using either foldLeft or foldRight.
+   * But you can also write foldLeft and foldRight using foldMap! Try it.
+   */
+  def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B =
+    foldMap(as, endoMonoid[B])(f.curried)(z)
 }
