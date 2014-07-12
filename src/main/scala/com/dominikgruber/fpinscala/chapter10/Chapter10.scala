@@ -1,6 +1,7 @@
 package com.dominikgruber.fpinscala.chapter10
 
 import com.dominikgruber.fpinscala.chapter08.{Gen, Prop}
+import com.dominikgruber.fpinscala.chapter08.Prop._
 
 object Chapter10 {
 
@@ -47,4 +48,26 @@ object Chapter10 {
     def op(a1: A => A, a2: A => A): A => A = a1 compose a2
     def zero: A => A = (a => a)
   }
+
+  /**
+   * Exercise 04
+   * Use the property-based testing framework we developed in part 2 to
+   * implement a property for the monoid laws. Use your property to test the
+   * monoids we’ve written.
+   */
+  def monoidLaws[A](m: Monoid[A], gen: Gen[A]): Prop = {
+    val associative = forAll(for {
+      x <- gen
+      y <- gen
+      z <- gen
+    } yield (x, y, z))(p =>
+      m.op(p._1, m.op(p._2, p._3)) == m.op(m.op(p._1, p._2), p._3))
+
+    val identity = forAll(gen)((a: A) =>
+      m.op(a, m.zero) == a && m.op(m.zero, a) == a)
+
+    associative && identity
+  }
+
+
 }

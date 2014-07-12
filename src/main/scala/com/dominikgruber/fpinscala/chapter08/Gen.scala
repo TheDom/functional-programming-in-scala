@@ -22,6 +22,9 @@ case class Gen[A](sample: State[RNG,A]) {
    * a method to Gen.
    */
   def unsized: SGen[A] = SGen(_ => this)
+
+  def map[B](f: A => B): Gen[B] =
+    Gen(sample.map(f))
 }
 
 object Gen {
@@ -31,7 +34,7 @@ object Gen {
    * Implement Gen.choose using this representation of Gen. Feel free to use
    * functions you've already written.
    */
-  def choose(start: Int, stopExclusive: Int): Gen[Int] = {
+  def choose_my(start: Int, stopExclusive: Int): Gen[Int] = {
     val run: RNG => (Int, RNG) = (rng: RNG) => {
       def genInt: RNG => (Int, RNG) = (rng: RNG) => {
         val (i, rnd) = rng.nextInt
@@ -44,7 +47,7 @@ object Gen {
   }
 
   // Much nicer reference implementation
-  def choose2(start: Int, stopExclusive: Int): Gen[Int] =
+  def choose(start: Int, stopExclusive: Int): Gen[Int] =
     Gen(State(Chapter06.nonNegativeInt).map(n => start + n % (stopExclusive - start)))
 
   /**
@@ -67,8 +70,8 @@ object Gen {
    * sameParity in the Gen companion object.
    */
   def sameParity(from: Int, to: Int): Gen[(Int,Int)] = {
-    choose2(from, to).flatMap { i =>
-      choose2(from, to).flatMap { j =>
+    choose(from, to).flatMap { i =>
+      choose(from, to).flatMap { j =>
         if (i % 2 == j % 2) Gen(State.unit(i, j))
         else Gen(State.unit(i, j + 1))
       }
