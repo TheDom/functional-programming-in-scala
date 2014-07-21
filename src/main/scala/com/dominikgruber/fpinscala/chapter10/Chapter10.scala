@@ -160,4 +160,32 @@ object Chapter10 {
     def op(a1: (A, B), a2: (A, B)): (A, B) = (A.op(a1._1, a2._1), B.op(a1._2, a1._2))
     def zero: (A, B) = (A.zero, B.zero)
   }
+
+  def mapMergeMonoid[K,V](V: Monoid[V]): Monoid[Map[K, V]] = new Monoid[Map[K, V]] {
+    def zero = Map()
+    def op(a: Map[K, V], b: Map[K, V]) =
+      a.foldLeft(b) {
+        case (m,(k,v)) => m + (k -> V.op(v, m.get(k) getOrElse V.zero))
+      }
+  }
+
+  // val M: Monoid[Map[String, Map[String, Int]]] = mapMergeMonoid(mapMergeMonoid(intAddition))
+
+  /**
+   * Exercise 17
+   * Write a monoid instance for functions whose results are monoids.
+   */
+  def functionMonoid[A,B](B: Monoid[B]): Monoid[A => B] = new Monoid[A => B] {
+    def op(a1: A => B, a2: A => B): A => B = a => B.op(a1(a), a2(a))
+    def zero: A => B = a => B.zero
+  }
+
+  /**
+   * Exercise 18
+   * A bag is like a set, except that it’s represented by a map that contains
+   * one entry per element with that element as the key, and the value under
+   * that key is the number of times the element appears in the bag.
+   */
+  def bag[A](as: IndexedSeq[A]): Map[A, Int] =
+    foldMapV(as, mapMergeMonoid[A, Int](intAddition))((a: A) => Map(a -> 1))
 }
