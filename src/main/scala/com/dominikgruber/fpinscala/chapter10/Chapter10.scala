@@ -1,5 +1,7 @@
 package com.dominikgruber.fpinscala.chapter10
 
+import com.dominikgruber.fpinscala.chapter07.Par
+import com.dominikgruber.fpinscala.chapter07.Par.Par
 import com.dominikgruber.fpinscala.chapter08.{Gen, Prop}
 import com.dominikgruber.fpinscala.chapter08.Prop._
 
@@ -86,4 +88,66 @@ object Chapter10 {
    */
   def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B =
     foldMap(as, endoMonoid[B])(f.curried)(z)
+
+  /**
+   * Exercise 07
+   * Implement a foldMap for IndexedSeq. Your implementation should use the
+   * strategy of splitting the sequence in two, recursively processing each
+   * half, and then adding the answers together with the monoid.
+   */
+  def foldMapV[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): B =
+    if (v.length == 0) m.zero
+    else if (v.length == 1) f(v(0))
+    else {
+      val s = v.splitAt(v.length / 2)
+      m.op(foldMapV(s._1, m)(f), foldMapV(s._2, m)(f))
+    }
+
+  def foldMapV_org[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): B =
+    if (v.length >= 4) {
+      val s = v.splitAt(v.length / 2)
+      m.op(foldMapV(s._1, m)(f), foldMapV(s._2, m)(f))
+    } else {
+      v.foldLeft(m.zero)((b, a) => m.op(b, f(a)))
+    }
+
+  /**
+   * Exercise 08 (hard)
+   * Also implement a parallel version of foldMap using the library we developed
+   * in chapter 7. Hint: Implement par, a combinator to promote Monoid[A] to a
+   * Monoid[Par[A]], and then use this to implement parFoldMap.
+   */
+  def parFoldMap[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] =
+    foldMapV(v, par(m))((a: A) => Par.unit(f(a)))
+
+  // Reference implementation
+  // Par.parMap(v)(f).flatMap { bs =>
+  //  foldMapV(bs, par(m))(b => Par.async(b))
+  // }
+
+  def par[A](m: Monoid[A]): Monoid[Par[A]] = new Monoid[Par[A]] {
+    def op(a: Par[A], b: Par[A]) = Par.map2(a, b)(m.op)
+    def zero = Par.unit(m.zero)
+  }
+
+  /**
+   * Exercise 09 (hard)
+   * Use foldMap to detect whether a given IndexedSeq[Int] is ordered. You’ll
+   * need to come up with a creative Monoid.
+   */
+  def ordered(ints: IndexedSeq[Int]): Boolean = {
+    // Reference implementation
+    // (Int, Int, Boolean) = (Min, Max, IsOrdered)
+    val mon = new Monoid[Option[(Int, Int, Boolean)]] {
+      def op(o1: Option[(Int, Int, Boolean)], o2: Option[(Int, Int, Boolean)]) =
+        (o1, o2) match {
+          case (Some((x1, y1, p)), Some((x2, y2, q))) =>
+            Some((x1 min x2, y1 max y2, p && q && y1 <= x2))
+          case (x, None) => x
+          case (None, x) => x
+        }
+      val zero = None
+    }
+    foldMapV(ints, mon)(i => Some((i, i, true))).map(_._3).getOrElse(true)
+  }
 }
