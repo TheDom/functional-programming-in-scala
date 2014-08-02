@@ -48,7 +48,7 @@ object Chapter10 {
    */
   def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
     def op(a1: A => A, a2: A => A): A => A = a1 compose a2
-    def zero: A => A = (a => a)
+    def zero: A => A = identity // (a => a)
   }
 
   /**
@@ -169,7 +169,7 @@ object Chapter10 {
       }
   }
 
-  // val M: Monoid[Map[String, Map[String, Int]]] = mapMergeMonoid(mapMergeMonoid(intAddition))
+  val M: Monoid[Map[String, Map[String, Int]]] = mapMergeMonoid[String, Map[String, Int]](mapMergeMonoid[String, Int](intAddition))
 
   /**
    * Exercise 17
