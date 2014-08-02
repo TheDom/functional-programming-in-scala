@@ -57,6 +57,39 @@ trait Monad[F[_]] extends Functor[F] {
         else filterM(xs)(f)
       )
   }
+
+  /**
+   * Exercise 07
+   * Implement this function.
+   */
+  def compose[A,B,C](f: A => F[B], g: B => F[C]): A => F[C] =
+    a => flatMap(f(a))(g)
+
+  /**
+   * Exercise 08 (hard)
+   * Implement flatMap in terms of compose. It seems that we’ve found another
+   * minimal set of monad combinators: compose and unit.
+   */
+  def flatMapViaCompose[A,B](ma: F[A])(f: A => F[B]): F[B] =
+    compose((_: Unit) => ma, f)(())
+
+  /**
+   * Exercise 12
+   * There’s a third minimal set of monadic combinators: map, unit, and join.
+   * Implement join.
+   */
+  def join[A](mma: F[F[A]]): F[A] =
+    flatMap(mma)(ma => ma)
+
+  /**
+   * Exercise 13
+   * Implement either flatMap or compose in terms of join.
+   */
+  def flatMapViaJoin[A,B](ma: F[A])(f: A => F[B]): F[B] =
+    join(map(ma)(f))
+
+  def composeViaJoin[A,B,C](f: A => F[B], g: B => F[C]): A => F[C] =
+    a => join(map(f(a))(g))
 }
 
 object Monad {
