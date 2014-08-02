@@ -149,4 +149,11 @@ object Monad {
     def flatMap[S1,A,S2,B](ma: State[S1,A])(f: State[S1,A] => State[S2,B]): State[S2,B] = ???
   }
    */
+
+  // Reference implementation
+  def stateMonad[S] = new Monad[({type f[x] = State[S,x]})#f] {
+    def unit[A](a: => A): State[S,A] = State(s => (a, s))
+    def flatMap[A,B](st: State[S,A])(f: A => State[S,B]): State[S,B] =
+      st flatMap f
+  }
 }
