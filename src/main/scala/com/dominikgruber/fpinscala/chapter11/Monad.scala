@@ -1,6 +1,7 @@
 package com.dominikgruber.fpinscala.chapter11
 
-import com.dominikgruber.fpinscala.chapter03.List
+// I'm not using my own list anymore because it does not implement fill()
+// import com.dominikgruber.fpinscala.chapter03.{Cons, Nil, List}
 import com.dominikgruber.fpinscala.chapter04.{Some, Option}
 import com.dominikgruber.fpinscala.chapter05.Stream
 import com.dominikgruber.fpinscala.chapter06.State
@@ -16,6 +17,46 @@ trait Monad[F[_]] extends Functor[F] {
     flatMap(ma)(a => unit(f(a)))
   def map2[A,B,C](ma: F[A], mb: F[B])(f: (A, B) => C): F[C] =
     flatMap(ma)(a => map(mb)(b => f(a, b)))
+
+  /**
+   * Exercise 03
+   * The sequence and traverse combinators should be pretty familiar to you by
+   * now, and your implementations of them from various prior chapters are
+   * probably all very similar. Implement them once and for all on Monad[F].
+   */
+  def sequence[A](lma: List[F[A]]): F[List[A]] =
+    traverse(lma)(x => x)
+
+  def traverse[A,B](la: List[A])(f: A => F[B]): F[List[B]] =
+    la.foldRight(unit(List[B]()))((a, mlb) => map2(f(a), mlb)(_ :: _))
+
+  /**
+   * Exercise 04
+   * Implement replicateM.
+   */
+  def replicateM[A](n: Int, ma: F[A]): F[List[A]] =
+    sequence(List.fill(n)(ma))
+
+  def product[A,B](ma: F[A], mb: F[B]): F[(A, B)] =
+    map2(ma, mb)((_, _))
+
+  /**
+   * Exercise 06 (hard)
+   * Here’s an example of a function you haven’t seen before. Implement the
+   * function filterM. It’s a bit like filter, except that instead of a function
+   * from A => Boolean, you have an A => F[Boolean]. (Replacing various ordinary
+   * functions like this with the monadic equivalent often yields interesting
+   * results.) Implement this function, and then think about what it means for
+   * various data types you’ve implemented.
+   */
+  def filterM[A](ms: List[A])(f: A => F[Boolean]): F[List[A]] = ms match {
+    case Nil => unit(Nil)
+    case x :: xs =>
+      flatMap(f(x))(b =>
+        if (b) map(filterM(xs)(f))(x :: _)
+        else filterM(xs)(f)
+      )
+  }
 }
 
 object Monad {
@@ -59,7 +100,7 @@ object Monad {
   val listMonad = new Monad[List] {
     def unit[A](a: => A): List[A] = List(a)
     def flatMap[A,B](ma: List[A])(f: A => List[B]): List[B] =
-      List.flatMap(ma)(f)
+      ma flatMap f
   }
 
   /**
