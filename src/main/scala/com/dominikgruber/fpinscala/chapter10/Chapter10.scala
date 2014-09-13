@@ -41,6 +41,11 @@ object Chapter10 {
     def zero: Option[A] = None
   }
 
+  def dual[A](m: Monoid[A]): Monoid[A] = new Monoid[A] {
+    def op(x: A, y: A): A = m.op(y, x)
+    val zero = m.zero
+  }
+
   /**
    * Exercise 03
    * A function having the same argument and return type is sometimes called an

@@ -1,5 +1,6 @@
 package com.dominikgruber.fpinscala.chapter12
 
+import com.dominikgruber.fpinscala.chapter10.Monoid
 import com.dominikgruber.fpinscala.chapter11.Functor
 
 trait Applicative[F[_]] extends Functor[F] {
@@ -61,4 +62,58 @@ trait Applicative[F[_]] extends Functor[F] {
 
   def map4[A,B,C,D,E](fa: F[A], fb: F[B], fc: F[C], fd: F[D])(f: (A, B, C, D) => E): F[E] =
     apply(apply(apply(map(fa)(f.curried))(fb))(fc))(fd)
+
+  /**
+   * Exercise 08
+   * Just like we can take the product of two monoids A and B to give the
+   * monoid (A, B), we can take the product of two applicative functors.
+   * Implement this function:
+   */
+  def product[G[_]](G: Applicative[G]): Applicative[({type f[x] = (F[x], G[x])})#f] = {
+    val self = this
+    new Applicative[({type f[x] = (F[x], G[x])})#f] {
+      def unit[A](a: => A) = (self.unit(a), G.unit(a))
+      override def apply[A,B](fs: (F[A => B], G[A => B]))(p: (F[A], G[A])) =
+        (self.apply(fs._1)(p._1), G.apply(fs._2)(p._2))
+    }
+  }
+
+  /**
+   * Exercise 09 (hard)
+   * Applicative functors also compose another way! If F[_] and G[_] are
+   * applicative functors, then so is F[G[_]]. Implement this function:
+   */
+  def compose[G[_]](G: Applicative[G]): Applicative[({type f[x] = F[G[x]]})#f] = {
+    var self = this
+    new Applicative[({type f[x] = F[G[x]]})#f] {
+      def unit[A](a: => A) = self.unit(G.unit(a))
+      override def map2[A,B,C](fga: F[G[A]], fgb: F[G[B]])(f: (A,B) => C) =
+        self.map2(fga, fgb)(G.map2(_, _)(f))
+    }
+  }
+
+  /**
+   * Exercise 12
+   * On the Applicative trait, implement sequence over a Map rather than a List:
+   */
+  def sequenceMap[K,V](ofa: Map[K,F[V]]): F[Map[K,V]] =
+    ofa.foldLeft(unit(Map[K, V]())) { case (fm, (k, fv)) =>
+      map2(fm, fv)((m, v) => m.updated(k, v))
+    }
+}
+
+object Applicative {
+  type Const[M, B] = M
+
+  implicit def monoidApplicative[M](M: Monoid[M]) = new Applicative[({ type f[x] = Const[M, x] })#f] {
+    def unit[A](a: => A): M = M.zero
+    override def map2[A,B,C](m1: M, m2: M)(f: (A,B) => C): M = M.op(m1,m2)
+  }
+
+  def optionMonoid[A]: Monoid[Option[A]] = new Monoid[Option[A]] {
+    def op(a1: Option[A], a2: Option[A]): Option[A] = a1.orElse(a2)
+    def zero: Option[A] = None
+  }
+
+  val optionApplicative = monoidApplicative(optionMonoid[Int])
 }

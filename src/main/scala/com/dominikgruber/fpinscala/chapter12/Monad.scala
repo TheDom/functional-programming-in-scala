@@ -26,7 +26,7 @@ object Monad {
 
     /*
      * "A minimal implementation of Monad must implement unit and override
-     * either flatMap or join and map.
+     * either flatMap or join and map."
      */
     override def flatMap[A,B](fa: Either[E, A])(f: A => Either[E, B]): Either[E, B] = fa match {
       case Right(a) => f(a)
