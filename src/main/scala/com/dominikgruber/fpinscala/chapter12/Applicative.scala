@@ -84,7 +84,7 @@ trait Applicative[F[_]] extends Functor[F] {
    * applicative functors, then so is F[G[_]]. Implement this function:
    */
   def compose[G[_]](G: Applicative[G]): Applicative[({type f[x] = F[G[x]]})#f] = {
-    var self = this
+    val self = this
     new Applicative[({type f[x] = F[G[x]]})#f] {
       def unit[A](a: => A) = self.unit(G.unit(a))
       override def map2[A,B,C](fga: F[G[A]], fgb: F[G[B]])(f: (A,B) => C) =

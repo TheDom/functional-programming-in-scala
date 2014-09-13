@@ -26,7 +26,7 @@ trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
     override def flatMap[A,B](a: A)(f: A => B): B = f(a)
   }
 
-  def map[A,B](fa: F[A])(f: A => B): F[B] =
+  override def map[A,B](fa: F[A])(f: A => B): F[B] =
     traverse[Id,A,B](fa)(f)
 
 
@@ -78,6 +78,28 @@ trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
    */
   override def foldLeft[A, B](l: F[A])(z: B)(f: (B, A) => B): B =
     mapAccum(l, z)((a, b) => ((), f(b, a)))._2
+
+  /**
+   * Exercise 18
+   * Use applicative functor products to write the fusion of two traversals.
+   * This function will, given two functions f and g, traverse fa a single time,
+   * collecting the results of both functions at once.
+   */
+  def fuse[G[_],H[_],A,B](fa: F[A])(f: A => G[B], g: A => H[B])(G: Applicative[G], H: Applicative[H]): (G[F[B]], H[F[B]]) =
+    traverse[({type f[x] = (G[x], H[x])})#f,A,B](fa)(a => (f(a), g(a)))(G product H)
+
+  /**
+   * Exercise 19
+   * Implement the composition of two Traverse instances.
+   */
+  def compose[G[_]](implicit G: Traverse[G]): Traverse[({type f[x] = F[G[x]]})#f] = {
+    val self = this
+    new Traverse[({type f[x] = F[G[x]]})#f] {
+      // def traverse[G[_],A,B](fa: F[A])(f: A => G[B])(implicit G: Applicative[G]): G[F[B]] =
+      override def traverse[M[_]:Applicative,A,B](fa: F[G[A]])(f: A => M[B]) =
+        self.traverse(fa)(ga => G.traverse(ga)(f))
+    }
+  }
 }
 
 object Traverse {
