@@ -1,6 +1,7 @@
 package com.dominikgruber.fpinscala.chapter12
 
-import com.dominikgruber.fpinscala.chapter10.Foldable
+import com.dominikgruber.fpinscala.chapter06.State
+import com.dominikgruber.fpinscala.chapter10.{Monoid, Foldable}
 import com.dominikgruber.fpinscala.chapter11.Functor
 
 trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
@@ -27,6 +28,56 @@ trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
 
   def map[A,B](fa: F[A])(f: A => B): F[B] =
     traverse[Id,A,B](fa)(f)
+
+
+  type Const[M, B] = M
+
+  implicit def monoidApplicative[M](M: Monoid[M]) =
+    new Applicative[({type f[x] = Const[M, x]})#f] {
+      def unit[A](a: => A): M = M.zero
+      override def map2[A,B,C](m1: M, m2: M)(f: (A,B) => C): M = M.op(m1, m2)
+    }
+
+  override def foldMap[A,M](as: F[A])(f: A => M)(mb: Monoid[M]): M =
+    traverse[({type f[x] = Const[M,x]})#f,A,Nothing](as)(f)(monoidApplicative(mb))
+
+
+  def traverseS[S,A,B](fa: F[A])(f: A => State[S, B]): State[S, F[B]] =
+    traverse[({type f[x] = State[S,x]})#f,A,B](fa)(f)(Monad.stateMonad)
+
+  def mapAccum[S,A,B](fa: F[A], s: S)(f: (A, S) => (B, S)): (F[B], S) = traverseS(fa)((a: A) => (for {
+    s1 <- State.get[S]
+    (b, s2) = f(a, s1)
+    _  <- State.set(s2)
+  } yield b)).run(s)
+
+  override def toList[A](fa: F[A]): List[A] =
+    mapAccum(fa, List[A]())((a, s) => ((), a :: s))._2.reverse
+
+  def zipWithIndex[A](fa: F[A]): F[(A, Int)] =
+    mapAccum(fa, 0)((a, s) => ((a, s), s + 1))._1
+
+  /**
+   * Exercise 16
+   * There’s an interesting consequence of being able to turn any traversable
+   * functor into a reversed list—we can write, once and for all, a function to
+   * reverse any traversable functor! Write this function, and think about what
+   * it means for List, Tree, and other traversable functors.
+   *
+   * It should obey the following law, for all x and y of the appropriate types:
+   *  toList(reverse(x)) ++ toList(reverse(y)) ==
+   *  reverse(toList(y) ++ toList(x))
+   */
+  def reverse[A](fa: F[A]): F[A] =
+    mapAccum(fa, toList(fa).reverse)((_, as) => (as.head, as.tail))._1
+
+  /**
+   * Exercise 17
+   * Use mapAccum to give a default implementation of foldLeft for the Traverse
+   * trait.
+   */
+  override def foldLeft[A, B](l: F[A])(z: B)(f: (B, A) => B): B =
+    mapAccum(l, z)((a, b) => ((), f(b, a)))._2
 }
 
 object Traverse {

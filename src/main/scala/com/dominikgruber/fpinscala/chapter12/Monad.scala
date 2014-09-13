@@ -1,6 +1,7 @@
 package com.dominikgruber.fpinscala.chapter12
 
 import com.dominikgruber.fpinscala.chapter04.{Either, Left, Right}
+import com.dominikgruber.fpinscala.chapter06.State
 
 trait Monad[F[_]] extends Applicative[F] {
   def flatMap[A,B](fa: F[A])(f: A => F[B]): F[B] = join(map(fa)(f))
@@ -32,5 +33,12 @@ object Monad {
       case Right(a) => f(a)
       case Left(e) => Left(e)
     }
+  }
+
+  // From Chapter 11
+  def stateMonad[S] = new Monad[({type f[x] = State[S,x]})#f] {
+    def unit[A](a: => A): State[S,A] = State(s => (a, s))
+    override def flatMap[A,B](st: State[S,A])(f: A => State[S,B]): State[S,B] =
+      st flatMap f
   }
 }
