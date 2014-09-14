@@ -95,7 +95,6 @@ trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
   def compose[G[_]](implicit G: Traverse[G]): Traverse[({type f[x] = F[G[x]]})#f] = {
     val self = this
     new Traverse[({type f[x] = F[G[x]]})#f] {
-      // def traverse[G[_],A,B](fa: F[A])(f: A => G[B])(implicit G: Applicative[G]): G[F[B]] =
       override def traverse[M[_]:Applicative,A,B](fa: F[G[A]])(f: A => M[B]) =
         self.traverse(fa)(ga => G.traverse(ga)(f))
     }
