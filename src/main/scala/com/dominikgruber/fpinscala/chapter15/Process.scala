@@ -21,6 +21,21 @@ sealed trait Process[I,O] {
     }
     go(this)
   }
+
+  /**
+   * Exercise 05
+   * Hard: Implement |> as a method on Process. Let the types guide your
+   * implementation.
+   */
+  def |>[O2](p2: Process[O,O2]): Process[I,O2] = p2 match {
+    case Halt() => Halt()
+    case Emit(h2, t2) => Emit(h2, this |> t2)
+    case Await(recv2) => this match {
+      case Halt() => Halt() |> recv2(None)
+      case Emit(h1, t1) => t1 |> recv2(Some(h1))
+      case Await(recv1) => Await(i => recv1(i) |> p2)
+    }
+  }
 }
 
 case class Emit[I,O](head: O, tail: Process[I,O] = Halt[I,O]()) extends Process[I,O]
@@ -124,8 +139,8 @@ object Process {
    * Write sum and count in terms of loop.
    */
   def sumViaLoop: Process[Double,Double] =
-    loop[Double,Double,Double](0.0)((i, z) => (z + i, z + i))
+    loop(0.0)((i, z) => (z + i, z + i))
 
   def countViaLoop[I]: Process[I,Int] =
-    loop[Int,I,Int](0)((i, z) => (z + 1, z + 1))
+    loop(0)((_, z) => (z + 1, z + 1))
 }
