@@ -37,7 +37,7 @@ object Monad {
 
   // From Chapter 11
   def stateMonad[S] = new Monad[({type f[x] = State[S,x]})#f] {
-    def unit[A](a: => A): State[S,A] = State(s => (a, s))
+    def unit[A](a: => A): State[S,A] = State.unit(a)
     override def flatMap[A,B](st: State[S,A])(f: A => State[S,B]): State[S,B] =
       st flatMap f
   }
@@ -50,6 +50,9 @@ object Monad {
     new Monad[({type f[x] = F[G[x]]})#f] {
       override def unit[A](a: => A): F[G[A]] = F.unit(G.unit(a))
       override def flatMap[A,B](fga: F[G[A]])(f: A => F[G[B]]): F[G[B]] =
-        F.flatMap(fga)(ga => F.map(T.traverse(ga)(f)(F))(G.join))
+        F.flatMap(fga)(ga => {
+          val t = T.traverse(ga)(f)(F)
+          F.map(t)(G.join)
+        })
   }
 }
