@@ -110,4 +110,22 @@ object Process {
     }
     go(0, 0)
   }
+
+  def loop[S,I,O](z: S)(f: (I,S) => (O,S)): Process[I,O] =
+    Await {
+      case Some(i) => f(i, z) match {
+        case (o, s2) => Emit(o, loop(s2)(f))
+      }
+      case None => Halt()
+    }
+
+  /**
+   * Exercise 04
+   * Write sum and count in terms of loop.
+   */
+  def sumViaLoop: Process[Double,Double] =
+    loop[Double,Double,Double](0.0)((i, z) => (z + i, z + i))
+
+  def countViaLoop[I]: Process[I,Int] =
+    loop[Int,I,Int](0)((i, z) => (z + 1, z + 1))
 }

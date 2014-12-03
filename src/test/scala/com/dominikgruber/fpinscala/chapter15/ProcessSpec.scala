@@ -47,4 +47,12 @@ class ProcessSpec extends FlatSpec with Matchers {
   "mean" should "emit a running average" in {
     Process.mean(Stream(1, 3, 5, 31)).toList should be (List(1, 2, 3, 10))
   }
+
+  "sumViaLoop" should "work" in {
+    Process.sumViaLoop(Stream(1,2,3,4,5)).toList should be (List(1,3,6,10,15))
+  }
+
+  "countViaLoop" should "work" in {
+    Process.countViaLoop(Stream("a", "b", "c")).toList should be (List(1,2,3))
+  }
 }
