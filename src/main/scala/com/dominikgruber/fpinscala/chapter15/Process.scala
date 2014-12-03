@@ -1,5 +1,7 @@
 package com.dominikgruber.fpinscala.chapter15
 
+import com.dominikgruber.fpinscala.chapter12.Monad
+
 sealed trait Process[I,O] {
   def apply(s: Stream[I]): Stream[O] = this match {
     case Halt() => Stream()
@@ -35,6 +37,21 @@ sealed trait Process[I,O] {
       case Emit(h1, t1) => t1 |> recv2(Some(h1))
       case Await(recv1) => Await(i => recv1(i) |> p2)
     }
+  }
+
+  def map[O2](f: O => O2): Process[I,O2] =
+    this |> Process.lift(f)
+
+  def ++(p: => Process[I,O]): Process[I,O] = this match {
+    case Halt() => p
+    case Emit(h, t) => Emit(h, t ++ p)
+    case Await(recv) => Await(recv andThen (_ ++ p))
+  }
+
+  def flatMap[O2](f: O => Process[I,O2]): Process[I,O2] = this match {
+    case Halt() => Halt()
+    case Emit(h, t) => f(h) ++ t.flatMap(f)
+    case Await(recv) => Await(recv andThen (_ flatMap f))
   }
 }
 
@@ -143,4 +160,9 @@ object Process {
 
   def countViaLoop[I]: Process[I,Int] =
     loop(0)((_, z) => (z + 1, z + 1))
+
+  def monad[I]: Monad[({ type f[x] = Process[I,x]})#f] = new Monad[({ type f[x] = Process[I,x]})#f] {
+    override def unit[O](o: => O): Process[I,O] = Emit(o)
+    override def flatMap[O,O2](p: Process[I,O])(f: O => Process[I,O2]): Process[I,O2] = p flatMap f
+  }
 }
