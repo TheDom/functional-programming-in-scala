@@ -125,7 +125,7 @@ object Process {
    */
   def count[I]: Process[I,Int] = {
     def go(acc: Int): Process[I,Int] = Await {
-      case Some(d) => Emit(acc, go(acc + 1))
+      case Some(_) => Emit(acc, go(acc + 1))
       case None => Halt()
     }
     go(1)
